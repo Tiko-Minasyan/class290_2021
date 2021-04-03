@@ -5,6 +5,7 @@ require('./db-connection');
 const express = require('express');
 const app = express();
 const users = require('./users/users.controller');
+const admin = require('./users/admin.controller');
 const auth = require('./auth/auth.controller');
 const posts = require('./posts/posts.controller');
 const { writeInFile, readFromFile } = require('./commons/util');
@@ -17,14 +18,15 @@ app.use(cors());
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
 
-// app.use(jwtMiddleware.unless({
-//     path: [
-//         '/auth/login',
-//         { url: '/users', methods: ['POST'] }
-//     ]
-// }));
+app.use(jwtMiddleware.unless({
+    path: [
+        '/auth/login',
+        { url: '/users', methods: ['POST'] }
+    ]
+}));
 
 app.use('/users', users);
+app.use('/admin', admin);
 app.use('/auth', auth);
 app.use('/posts', posts);
 

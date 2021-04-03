@@ -1,4 +1,4 @@
-const { NotFound } = require('http-errors');
+const { NotFound, Forbidden } = require('http-errors');
 const User = require('./user.entity');
 const Post = require('../posts/post.entity');
 const mongoose = require('mongoose');
@@ -25,7 +25,7 @@ class UserService {
     async findOne(id) {
         const user = await User.findById(id).exec();
         if (!user) {
-            throw new NotFound(`User with id ${id} not found.`);
+            throw new Error(`User with id ${id} not found.`);
         }
         return user;
     }
@@ -62,6 +62,35 @@ class UserService {
 
         return user.save();
     }
+
+	async unlock(id, admin) {
+		let user = await this.findOne(id);
+
+		if(admin.role !== 'admin') {
+			throw new Forbidden('Not authorized!');
+		}
+
+		user = Object.assign(user, {
+			loginFails: 0,
+			isLocked: false,
+		})
+
+		return user.save();
+	}
+
+	async lock(id, admin) {
+		let user = await this.findOne(id);
+
+		if(admin.role !== 'admin') {
+			throw new Forbidden('Not authorized!');
+		}
+		
+		user = Object.assign(user, {
+			isLocked: true,
+		})
+
+		return user.save();
+	}
 }
 
 module.exports = new UserService();

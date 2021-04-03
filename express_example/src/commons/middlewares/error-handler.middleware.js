@@ -6,10 +6,12 @@ module.exports = {
             err.statusCode = 409;
         } else if (err.message.includes('validation')) {
             err.statusCode = 400;
-        }
+        } else if (err.message.includes('locked')) {
+			err.statusCode = 423;
+		}
 
         if (!err.statusCode) {
-            console.error(err);
+            // console.error(err);
         }
 
         return res.status(err.statusCode || 500).json({ message: err.message });
